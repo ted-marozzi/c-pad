@@ -49,11 +49,13 @@ mkdir -p bin/obj
 
 for file in ./src/*.c; do
   file_name="${file#\.\/src\/}"
+  # shellcheck disable=SC2086
   clang $flags -c "$file" -o "./bin/obj/${file_name%.c}.o"
 done
 
 for file in ./src/*.h; do
   file_name="${file#\.\/src\/}"
+  # shellcheck disable=SC2086
   clang $flags -c "$file" -o "./bin/obj/$file_name.gch"
 done
 
