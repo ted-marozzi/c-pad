@@ -4,17 +4,17 @@
 #include <string.h>
 
 typedef struct String {
-  int size;
-  int capacity;
+  unsigned long long length;
+  unsigned long long capacity;
   char *chars;
 } String;
 
 String *string_create() {
-  int capacity = 1;
+  int capacity = 2;
 
   String *string = malloc(sizeof(*string) + sizeof(char) * capacity);
 
-  string->size = 0;
+  string->length = 0;
   string->capacity = capacity;
   string->chars = (char *)malloc(sizeof(char) * capacity);
 
@@ -28,11 +28,11 @@ void string_free(String *string) {
 
 void string_append_chars(String *string, char *chars) {
   int chars_size = strlen(chars);
-  int original_size = string->size;
+  int original_size = string->length;
 
-  string->size = original_size + chars_size;
+  string->length = original_size + chars_size;
 
-  while (string->size > string->capacity) {
+  while (string->length > string->capacity) {
     string->capacity *= 2;
     string->chars =
         (char *)realloc(string->chars, sizeof(char) * string->capacity);
@@ -43,30 +43,34 @@ void string_append_chars(String *string, char *chars) {
   }
 }
 
-char *string_to_chars(String *string) {
-  char *chars = (char *)malloc(sizeof(char) * string->size + 1);
+void string_append_string(String *string, String *string_two) {
+  string_append_chars(string, string_two->chars);
+}
 
-  for (size_t i = 0; i < string->size; i++) {
+char *string_to_chars(String *string) {
+  char *chars = (char *)malloc(sizeof(char) * string->length + 1);
+
+  for (size_t i = 0; i < string->length; i++) {
     chars[i] = string->chars[i];
   }
 
-  chars[string->size] = '\0';
+  chars[string->length] = '\0';
 
   return chars;
 }
 
 typedef struct Vector {
-  int size;
-  int capacity;
+  unsigned long long length;
+  unsigned long long capacity;
   int *items;
 } Vector;
 
 Vector *vec_create() {
-  int capacity = 1;
+  int capacity = 2;
 
   Vector *vector = malloc(sizeof(*vector) + sizeof(int) * capacity);
 
-  vector->size = 0;
+  vector->length = 0;
   vector->capacity = capacity;
   vector->items = (int *)malloc(sizeof(int) * capacity);
 
@@ -79,16 +83,16 @@ void vec_free(Vector *vector) {
 }
 
 int vec_get_item(Vector *vector, int index) {
-  if (index >= vector->size) {
-    printf("Index out of bounds\n");
+  if (index >= vector->length) {
+    printf("Unable to get item, index out of bounds\n");
     exit(1);
   }
   return vector->items[index];
 }
 
 void vec_set_item(Vector *vector, int index, int item) {
-  if (index >= vector->size) {
-    printf("Index out of bounds\n");
+  if (index >= vector->length) {
+    printf("Unable to set item, index out of bounds\n");
     exit(1);
   }
   vector->items[index] = item;
@@ -97,7 +101,7 @@ void vec_set_item(Vector *vector, int index, int item) {
 String *vec_to_string(Vector *vector) {
   String *string = string_create();
 
-  for (size_t i = 0; i < vector->size; i++) {
+  for (size_t i = 0; i < vector->length; i++) {
     int formatting_count = 4;
     int digit_count = 11;
     int null_terminator_count = 1;
@@ -107,11 +111,12 @@ String *vec_to_string(Vector *vector) {
 
     char buffer[max_chars_count];
     if (i == 0) {
-      char *str1 = "quick";
-      char *str2 = "brown";
-      char *str3 = "lazy";
-      snprintf(buffer, sizeof buffer, "{ %d, ", vec_get_item(vector, i));
-    } else if (i < vector->size - 1) {
+      if (vector->length == 1) {
+        snprintf(buffer, sizeof buffer, "{ %d }", vec_get_item(vector, i));
+      } else {
+        snprintf(buffer, sizeof buffer, "{ %d, ", vec_get_item(vector, i));
+      }
+    } else if (i < vector->length - 1) {
       snprintf(buffer, sizeof buffer, "%d, ", vec_get_item(vector, i));
     } else {
       snprintf(buffer, sizeof buffer, "%d }", vec_get_item(vector, i));
@@ -122,49 +127,86 @@ String *vec_to_string(Vector *vector) {
   return string;
 }
 
-void vec_append(Vector *vector, int item) {
-  vector->size = vector->size + 1;
+char *vec_to_chars(Vector *vector) {
+  String *string = vec_to_string(vector);
+  char *chars = string_to_chars(string);
+  string_free(string);
+  return chars;
+}
 
-  if (vector->size > vector->capacity) {
+void vec_append(Vector *vector, int item) {
+  vector->length = vector->length + 1;
+
+  if (vector->length > vector->capacity) {
     vector->capacity *= 2;
     vector->items =
         (int *)realloc(vector->items, sizeof(int) * vector->capacity);
   }
 
-  vector->items[vector->size - 1] = item;
+  vector->items[vector->length - 1] = item;
 }
 
 void vec_append_array(Vector *vector, int items[], size_t items_size) {
+  int original_size = vector->length;
 
-  int original_size = vector->size;
+  vector->length = original_size + items_size;
 
-  vector->size = original_size + items_size;
-
-  while (vector->size > vector->capacity) {
+  while (vector->length > vector->capacity) {
+    if (vector->capacity > ULLONG_MAX / 2) {
+      printf("Vector capacity overflow\n");
+      exit(1);
+    }
     vector->capacity *= 2;
-    vector->items =
-        (int *)realloc(vector->items, sizeof(int) * vector->capacity);
   }
+  vector->items = (int *)realloc(vector->items, sizeof(int) * vector->capacity);
 
   for (size_t i = 0; i < items_size; i++) {
-    vec_set_item(vector, original_size + i, items[i]);
+    int item = items[i];
+    vec_set_item(vector, original_size + i, item);
   }
+}
+
+void vec_append_vec(Vector *vector, Vector *vector_to_append) {
+  vec_append_array(vector, vector_to_append->items, vector_to_append->length);
+}
+
+Vector *vec_clone(Vector *vector) {
+  Vector *new_vector = vec_create();
+
+  vec_append_vec(new_vector, vector);
+
+  return new_vector;
 }
 
 int main(void) {
   Vector *vector = vec_create();
-
-  int items[] = {INT_MIN, INT_MAX, 2};
-  vec_append_array(vector, items, sizeof(items) / sizeof(int));
   vec_append(vector, 1);
 
-  String *vector_string = vec_to_string(vector);
-  char *vector_chars = string_to_chars(vector_string);
-  printf("Vector: %s\n", vector_chars);
+  printf("Item: %d\n", vec_get_item(vector, 0));
+  vec_set_item(vector, 0, 100);
+  printf("Item: %d\n", vec_get_item(vector, 0));
+
+  Vector *vector_two = vec_create();
+  vec_append(vector_two, 2);
+  vec_append(vector_two, 3);
+
+  vec_append_vec(vector, vector_two);
+
+  int array[] = {INT_MIN, 0, INT_MAX};
+  vec_append_array(vector, array, sizeof(array) / sizeof(array[0]));
+
+  printf("Vector: %s\n", vec_to_chars(vector));
+
+  String *string = string_create();
+  string_append_chars(string, "Hello, ");
+  string_append_chars(string, "World!\n");
+  string_append_string(string, vec_to_string(vector));
+
+  printf("String: %s\n", string_to_chars(string));
 
   vec_free(vector);
-  string_free(vector_string);
-  free(vector_chars);
+  vec_free(vector_two);
+  string_free(string);
 
   return 0;
 }
