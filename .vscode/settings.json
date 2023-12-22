@@ -4,7 +4,11 @@
     ".env.local": "properties",
     ".env.development": "properties",
     ".env.production": "properties",
-    "string.h": "c"
+    "string.h": "c",
+    "vector.h": "c",
+    "limits.h": "c",
+    "stdio.h": "c",
+    "stdlib.h": "c"
   },
   "cSpell.words": ["karek", "Valgrind"]
 }

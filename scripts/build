@@ -1,0 +1,34 @@
+#!/bin/bash
+set -exo pipefail
+
+flags=""
+
+for arg in "$@"; do
+  case "$arg" in
+  "--debug" | "-d")
+    flags+="-g "
+    ;;
+
+  "--sanatize" | "-s")
+    flags+="-fsanitize=address "
+    ;;
+
+  *)
+    echo "invalid argument $arg"
+    ;;
+  esac
+done
+
+mkdir -p bin/obj
+
+for file in ./src/*.c; do
+  file_name="${file#\.\/src\/}"
+  clang -c "$file" -o "./bin/obj/${file_name%.c}.o"
+done
+
+for file in ./src/*.h; do
+  file_name="${file#\.\/src\/}"
+  clang -c "$file" -o "./bin/obj/$file_name.gch"
+done
+
+clang ./bin/obj/*.o ./bin/obj/*.h.gch "$flags" -o ./bin/main
