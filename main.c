@@ -34,13 +34,18 @@ void string_append_chars(String *string, char *chars) {
 
   while (string->length > string->capacity) {
     string->capacity *= 2;
-    string->chars =
-        (char *)realloc(string->chars, sizeof(char) * string->capacity);
+    if (string->capacity > ULLONG_MAX / 2) {
+      printf("String capacity overflow\n");
+      exit(1);
+    }
   }
+  string->chars =
+      (char *)realloc(string->chars, sizeof(char) * string->capacity);
 
   for (size_t i = 0; i < chars_size; i++) {
     string->chars[original_size + i] = chars[i];
   }
+  string->chars[string->length] = '\0';
 }
 
 void string_append_string(String *string, String *string_two) {
@@ -195,18 +200,25 @@ int main(void) {
   int array[] = {INT_MIN, 0, INT_MAX};
   vec_append_array(vector, array, sizeof(array) / sizeof(array[0]));
 
-  printf("Vector: %s\n", vec_to_chars(vector));
+  char *vec_chars = vec_to_chars(vector);
+  printf("Vector: %s\n", vec_chars);
 
   String *string = string_create();
   string_append_chars(string, "Hello, ");
   string_append_chars(string, "World!\n");
-  string_append_string(string, vec_to_string(vector));
 
-  printf("String: %s\n", string_to_chars(string));
+  String *vec_string = vec_to_string(vector);
+  string_append_string(string, vec_string);
+
+  char *string_chars = string_to_chars(string);
+  printf("Chars: %s\n", string_chars);
 
   vec_free(vector);
   vec_free(vector_two);
   string_free(string);
+  string_free(vec_string);
+  free(string_chars);
+  free(vec_chars);
 
   return 0;
 }
