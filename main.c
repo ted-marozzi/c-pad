@@ -102,21 +102,21 @@ String *vec_to_string(Vector *vector) {
     int digit_count = 11;
     int null_terminator_count = 1;
 
-    int max_number_chars =
+    int max_chars_count =
         formatting_count + digit_count + null_terminator_count;
 
-    char number[max_number_chars];
+    char buffer[max_chars_count];
     if (i == 0) {
       char *str1 = "quick";
       char *str2 = "brown";
       char *str3 = "lazy";
-      snprintf(number, sizeof number, "{ %d, ", vec_get_item(vector, i));
+      snprintf(buffer, sizeof buffer, "{ %d, ", vec_get_item(vector, i));
     } else if (i < vector->size - 1) {
-      snprintf(number, sizeof number, "%d, ", vec_get_item(vector, i));
+      snprintf(buffer, sizeof buffer, "%d, ", vec_get_item(vector, i));
     } else {
-      snprintf(number, sizeof number, "%d }", vec_get_item(vector, i));
+      snprintf(buffer, sizeof buffer, "%d }", vec_get_item(vector, i));
     }
-    string_append_chars(string, number);
+    string_append_chars(string, buffer);
   }
 
   return string;
