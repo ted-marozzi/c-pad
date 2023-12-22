@@ -71,13 +71,13 @@ EOM
 
 case $1 in
 "clean")
-  ./scripts/clean
+  ./scripts/clean "${@:2}"
   ;;
 "build")
-  ./scripts/build
+  ./scripts/build "${@:2}"
   ;;
 "run")
-  ./scripts/run
+  ./scripts/run "${@:2}"
   ;;
 "create")
   create

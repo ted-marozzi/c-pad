@@ -13,7 +13,6 @@ for arg in "$@"; do
   "--sanatize" | "-s")
     flags+="-fsanitize=address "
     ;;
-
   *)
     echo "invalid argument $arg"
     ;;
@@ -32,4 +31,4 @@ for file in ./src/*.h; do
   clang -c "$file" -o "./bin/obj/$file_name.gch"
 done
 
-clang ./bin/obj/*.o ./bin/obj/*.h.gch "$flags" -o ./bin/main
+clang $flags ./bin/obj/*.o ./bin/obj/*.h.gch -o ./bin/main

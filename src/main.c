@@ -13,6 +13,7 @@ int main(void) {
   Vector *vector_two = vec_create();
   vec_append(vector_two, 2);
   vec_append(vector_two, 3);
+  vec_append(vector_two, 1024);
 
   vec_append_vec(vector, vector_two);
 
