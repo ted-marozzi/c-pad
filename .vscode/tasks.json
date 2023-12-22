@@ -5,7 +5,7 @@
       "label": "build:debug",
       "type": "shell",
       "command": "clang",
-      "args": ["main.c", "-g", "-O0", "-o", "main"],
+      "args": ["main.c", "-fsanitize=address", "-g", "-O0", "-o", "main"],
       "presentation": {
         "reveal": "always",
         "panel": "shared"
