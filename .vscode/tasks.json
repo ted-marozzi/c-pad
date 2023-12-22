@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build:debug",
+      "type": "shell",
+      "command": "${workspaceFolder}/sake",
+      "args": ["build", "--debug"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "group": {
+        "kind": "build"
+      }
+    }
+  ]
+}
