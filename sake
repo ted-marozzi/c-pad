@@ -32,7 +32,7 @@ flags=""
 for arg in "$@"; do
   case "$arg" in
   "--debug" | "-d")
-    flags+="-g "
+    flags+="-gdwarf-4"
     ;;
 
   "--sanatize" | "-s")

@@ -8,7 +8,8 @@
     "vector.h": "c",
     "limits.h": "c",
     "stdio.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "iosfwd": "c"
   },
   "cSpell.words": ["karek", "Valgrind"]
 }
